@@ -1,0 +1,36 @@
+{
+  "name": "briefcase-github-automation",
+  "version": "1.0.0",
+  "description": "Seamless GitHub automation for Briefcase App with UV, PNPM, and GitHub CLI",
+  "main": "github-automation-server.js",
+  "scripts": {
+    "start": "node github-automation-server.js",
+    "dev": "nodemon github-automation-server.js",
+    "setup": "npm install && chmod +x github-automation-server.js",
+    "check-system": "node -e \"console.log('UV:', require('child_process').execSync('which uv', {encoding:'utf8'}).trim()); console.log('PNPM:', require('child_process').execSync('which pnpm', {encoding:'utf8'}).trim()); console.log('GitHub CLI:', require('child_process').execSync('which gh', {encoding:'utf8'}).trim());\"",
+    "install-tools": "curl -LsSf https://astral.sh/uv/install.sh | sh && npm install -g pnpm && brew install gh",
+    "open": "open http://localhost:3000"
+  },
+  "keywords": [
+    "github",
+    "automation",
+    "briefcase",
+    "uv",
+    "pnpm",
+    "git",
+    "vue",
+    "node"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
