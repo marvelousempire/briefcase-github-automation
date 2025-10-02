@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Briefcase GitHub Automation - Cursor AI Integration</title>
+    <style>
+        :root {
+            --primary: #007AFF;
+            --secondary: #5856D6;
+            --success: #34C759;
+            --warning: #FF9500;
+            --error: #FF3B30;
+            --background: #F2F2F7;
+            --surface: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #8E8E93;
+            --border: #C6C6C8;
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            --radius: 12px;
+            --spacing: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+
+        .header {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: var(--spacing);
+            margin-bottom: var(--spacing);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--spacing);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: var(--spacing);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: var(--spacing);
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-success { background: var(--success); }
+        .status-error { background: var(--error); }
+        .status-warning { background: var(--warning); }
+
+        .form-group {
+            margin-bottom: var(--spacing);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #0056CC;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: #4A47A3;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #2BA84A;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: #E6850E;
+        }
+
+        .btn-error {
+            background: var(--error);
+        }
+
+        .btn-error:hover {
+            background: #E5342A;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--primary);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: var(--spacing);
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(52, 199, 89, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(52, 199, 89, 0.2);
+        }
+
+        .alert-error {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .alert-warning {
+            background: rgba(255, 149, 0, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 149, 0, 0.2);
+        }
+
+        .cursor-status {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: var(--spacing);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing);
+        }
+
+        .cursor-status h3 {
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .ai-features {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: var(--spacing);
+            border-radius: var(--radius);
+            margin-bottom: var(--spacing);
+        }
+
+        .ai-features h3 {
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: var(--spacing) 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .output {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: var(--spacing);
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: var(--spacing);
+        }
+
+        .output.success { border-left: 4px solid var(--success); }
+        .output.error { border-left: 4px solid var(--error); }
+        .output.warning { border-left: 4px solid var(--warning); }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 8px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn-group .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Briefcase GitHub Automation</h1>
+            <p>Real Cursor AI Integration for Intelligent Git Workflows</p>
+        </div>
+
+        <!-- System Status -->
+        <div class="cursor-status">
+            <h3>🔍 System Intelligence Status</h3>
+            <div id="systemStatus">
+                <p>Checking system intelligence...</p>
+            </div>
+            <button class="btn btn-secondary" onclick="checkSystemIntelligence()">🔄 Refresh Intelligence</button>
+        </div>
+
+        <!-- AI Features -->
+        <div class="ai-features">
+            <h3>✨ Cursor AI Features</h3>
+            <p>Real AI-powered content generation using Cursor's intelligence</p>
+            <div class="feature-grid">
+                <div class="feature-item" onclick="analyzeWithCursor()">
+                    <div>🔍</div>
+                    <div>Analyze Changes</div>
+                </div>
+                <div class="feature-item" onclick="generateCommitWithCursor()">
+                    <div>📝</div>
+                    <div>Smart Commit</div>
+                </div>
+                <div class="feature-item" onclick="suggestBranchesWithCursor()">
+                    <div>🌿</div>
+                    <div>Branch Suggestions</div>
+                </div>
+                <div class="feature-item" onclick="executeFullAIFlow()">
+                    <div>🚀</div>
+                    <div>Full AI Flow</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- System Check -->
+            <div class="card">
+                <h3>🔧 System Check</h3>
+                <div id="systemStatus">
+                    <p>Click "Check System" to verify all tools are installed and working.</p>
+                </div>
+                <button class="btn btn-full" onclick="checkSystem()">Check System</button>
+            </div>
+
+            <!-- Branch Management -->
+            <div class="card">
+                <h3>🌿 Branch Management</h3>
+                <div class="form-group">
+                    <label for="branchName">Branch Name</label>
+                    <input type="text" id="branchName" placeholder="feature/new-feature">
+                </div>
+                <div class="form-group">
+                    <label for="baseBranch">Base Branch</label>
+                    <select id="baseBranch">
+                        <option value="main">main</option>
+                        <option value="develop">develop</option>
+                        <option value="master">master</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="createBranch()">Create Branch</button>
+                    <button class="btn btn-secondary" onclick="suggestBranchesWithCursor()">🧠 AI Suggest</button>
+                </div>
+            </div>
+
+            <!-- Commit Information -->
+            <div class="card">
+                <h3>📝 Commit Information</h3>
+                <div class="form-group">
+                    <label for="commitTitle">Commit Title</label>
+                    <input type="text" id="commitTitle" placeholder="Add new feature">
+                </div>
+                <div class="form-group">
+                    <label for="commitDescription">Commit Description</label>
+                    <textarea id="commitDescription" placeholder="Describe what was changed and why..."></textarea>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="pushBranch()">Push Branch</button>
+                    <button class="btn btn-secondary" onclick="generateCommitWithCursor()">🧠 AI Generate</button>
+                </div>
+            </div>
+
+            <!-- GitHub Integration -->
+            <div class="card">
+                <h3>🚀 GitHub Integration</h3>
+                <div class="form-group">
+                    <label for="prTitle">Pull Request Title</label>
+                    <input type="text" id="prTitle" placeholder="Add new feature">
+                </div>
+                <div class="form-group">
+                    <label for="prDescription">Pull Request Description</label>
+                    <textarea id="prDescription" placeholder="Describe the changes and their impact..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reviewers">Reviewers (comma-separated)</label>
+                    <input type="text" id="reviewers" placeholder="username1,username2">
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="createPR()">Create PR</button>
+                    <button class="btn btn-success" onclick="executeFullFlow()">Execute Full Flow</button>
+                </div>
+            </div>
+
+            <!-- AI Analysis Results -->
+            <div class="card" id="aiResultsCard" style="display: none;">
+                <h3>🧠 Cursor AI Analysis</h3>
+                <div id="aiResults">
+                    <!-- AI analysis results will appear here -->
+                </div>
+            </div>
+
+            <!-- Output -->
+            <div class="card">
+                <h3>📊 Output</h3>
+                <div id="output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        
+        // Check system intelligence on load
+        window.addEventListener('load', () => {
+            checkSystemIntelligence();
+        });
+
+        // System Intelligence Functions
+        async function checkSystemIntelligence() {
+            try {
+                showOutput('🔍 Checking system intelligence...', 'info');
+                const response = await fetch('/api/system-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const { repositories, githubDesktop, cursor } = result;
+                    
+                    let statusHtml = `
+                        <div class="status-indicator ${cursor.accessible ? 'status-success' : 'status-error'}"></div>
+                        <strong>Cursor AI:</strong> ${cursor.accessible ? 'Connected' : 'Not Available'}<br>
+                        <strong>GitHub Desktop:</strong> ${githubDesktop.installed ? 'Installed' : 'Not Found'} ${githubDesktop.running ? '(Running)' : ''}<br>
+                        <strong>Repositories Found:</strong> ${repositories.length}<br>
+                        <strong>Current Project:</strong> ${cursor.currentProject || 'None detected'}<br>
+                    `;
+                    
+                    if (repositories.length > 0) {
+                        statusHtml += '<br><strong>Detected Repositories:</strong><br>';
+                        repositories.slice(0, 5).forEach(repo => {
+                            const status = repo.hasChanges ? '🟡' : '🟢';
+                            statusHtml += `${status} ${repo.name} (${repo.branch})<br>`;
+                        });
+                        if (repositories.length > 5) {
+                            statusHtml += `... and ${repositories.length - 5} more<br>`;
+                        }
+                    }
+                    
+                    document.getElementById('systemStatus').innerHTML = statusHtml;
+                    
+                    if (cursor.accessible) {
+                        showOutput('✅ System intelligence ready!', 'success');
+                    } else {
+                        showOutput('❌ Cursor AI not available. Please install Cursor IDE.', 'error');
+                    }
+                } else {
+                    showOutput('❌ Failed to check system intelligence: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('❌ Error checking system intelligence: ' + error.message, 'error');
+            }
+        }
+
+        async function analyzeWithCursor() {
+            try {
+                showOutput('🔍 Analyzing changes with Cursor AI...', 'info');
+                const response = await fetch('/api/intelligent-commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAIResults(result);
+                    showOutput('✅ Cursor AI analysis complete!', 'success');
+                } else {
+                    showOutput('❌ Cursor AI analysis failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showOutput('❌ Error analyzing with Cursor AI: ' + error.message, 'error');
+            }
+        }
+
+        async function generateCommitWithCursor() {
+            try {
+                showOutput('🧠 Generating commit message with Cursor AI...', 'info');
+                const response = await fetch('/api/intelligent-commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Fill in the form fields
+                    document.getElementById('commitTitle').value = result.title;
+                    document.getElementById('commitDescription').value = result.description;
+                    document.getElementById('branchName').value = result.branchName;
+                    
+                    showAIResults(result);
+                    showOutput('✅ Cursor AI generated commit message!', 'success');
+                } else {
+                    showOutput('❌ Cursor AI generation failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showOutput('❌ Error generating with Cursor AI: ' + error.message, 'error');
+            }
+        }
+
+        async function suggestBranchesWithCursor() {
+            try {
+                showOutput('🌿 Getting branch suggestions from Cursor AI...', 'info');
+                const response = await fetch('/api/cursor-branches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const suggestions = result.suggestions;
+                    const suggestionsHtml = suggestions.map(suggestion => 
+                        `<div class="feature-item" onclick="selectBranchSuggestion('${suggestion}')">${suggestion}</div>`
+                    ).join('');
+                    
+                    showAIResults({
+                        title: 'Branch Suggestions',
+                        description: 'Cursor AI suggests these branch names based on your changes:',
+                        suggestions: suggestionsHtml
+                    });
+                    showOutput('✅ Cursor AI generated branch suggestions!', 'success');
+                } else {
+                    showOutput('❌ Cursor AI suggestions failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('❌ Error getting suggestions from Cursor AI: ' + error.message, 'error');
+            }
+        }
+
+        async function executeFullAIFlow() {
+            try {
+                showOutput('🚀 Executing intelligent workflow...', 'info');
+                
+                const response = await fetch('/api/intelligent-workflow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd(), autoDetect: true })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Fill in form fields with AI results
+                    document.getElementById('branchName').value = result.commitInfo.branchName;
+                    document.getElementById('commitTitle').value = result.commitInfo.title;
+                    document.getElementById('commitDescription').value = result.commitInfo.description;
+                    document.getElementById('prTitle').value = result.commitInfo.title;
+                    document.getElementById('prDescription').value = result.commitInfo.description;
+                    
+                    showAIResults(result.commitInfo);
+                    showOutput('✅ Intelligent workflow completed successfully!', 'success');
+                    showFlowResults(result.results);
+                    
+                    // Show recommendations
+                    if (result.recommendations && result.recommendations.length > 0) {
+                        showOutput('💡 Recommendations: ' + result.recommendations.join(', '), 'info');
+                    }
+                } else {
+                    showOutput('❌ Intelligent workflow failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showOutput('❌ Error executing intelligent workflow: ' + error.message, 'error');
+            }
+        }
+
+        function selectBranchSuggestion(suggestion) {
+            document.getElementById('branchName').value = suggestion;
+            showOutput(`✅ Selected branch: ${suggestion}`, 'success');
+        }
+
+        function showAIResults(result) {
+            const resultsCard = document.getElementById('aiResultsCard');
+            const resultsDiv = document.getElementById('aiResults');
+            
+            let html = `
+                <div class="alert alert-success">
+                    <strong>${result.title}</strong><br>
+                    ${result.description}
+                </div>
+            `;
+            
+            if (result.branchName) {
+                html += `<p><strong>Suggested Branch:</strong> ${result.branchName}</p>`;
+            }
+            
+            if (result.type) {
+                html += `<p><strong>Change Type:</strong> ${result.type}</p>`;
+            }
+            
+            if (result.suggestions) {
+                html += `<div class="feature-grid">${result.suggestions}</div>`;
+            }
+            
+            resultsDiv.innerHTML = html;
+            resultsCard.style.display = 'block';
+        }
+
+        function showFlowResults(results) {
+            let html = '<h4>Workflow Results:</h4>';
+            results.forEach(result => {
+                const status = result.success ? 'success' : 'error';
+                const icon = result.success ? '✅' : '❌';
+                html += `<div class="alert alert-${status}">${icon} ${result.step}: ${result.success ? 'Success' : result.error}</div>`;
+            });
+            showOutput(html, 'info');
+        }
+
+        // System Functions
+        async function checkSystem() {
+            try {
+                showOutput('Checking system requirements...', 'info');
+                const response = await fetch('/api/system-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const checks = result.checks;
+                    let statusHtml = '';
+                    
+                    Object.entries(checks).forEach(([tool, available]) => {
+                        const status = available ? 'success' : 'error';
+                        const icon = available ? '✅' : '❌';
+                        statusHtml += `<div class="alert alert-${status}">${icon} ${tool}: ${available ? 'Available' : 'Not Found'}</div>`;
+                    });
+                    
+                    document.getElementById('systemStatus').innerHTML = statusHtml;
+                    showOutput('System check completed!', 'success');
+                } else {
+                    showOutput('System check failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('Error checking system: ' + error.message, 'error');
+            }
+        }
+
+        async function createBranch() {
+            const branchName = document.getElementById('branchName').value;
+            const baseBranch = document.getElementById('baseBranch').value;
+            
+            if (!branchName) {
+                showOutput('Please enter a branch name', 'error');
+                return;
+            }
+            
+            try {
+                showOutput(`Creating branch '${branchName}' from '${baseBranch}'...`, 'info');
+                const response = await fetch('/api/create-branch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branchName, baseBranch, cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showOutput(result.message, 'success');
+                } else {
+                    showOutput('Error creating branch: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('Error creating branch: ' + error.message, 'error');
+            }
+        }
+
+        async function pushBranch() {
+            const branchName = document.getElementById('branchName').value;
+            const commitTitle = document.getElementById('commitTitle').value;
+            const commitDescription = document.getElementById('commitDescription').value;
+            
+            if (!branchName || !commitTitle) {
+                showOutput('Please enter branch name and commit title', 'error');
+                return;
+            }
+            
+            try {
+                showOutput(`Pushing branch '${branchName}'...`, 'info');
+                const response = await fetch('/api/push-branch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branchName, commitTitle, commitDescription, cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showOutput(result.message, 'success');
+                } else {
+                    showOutput('Error pushing branch: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('Error pushing branch: ' + error.message, 'error');
+            }
+        }
+
+        async function createPR() {
+            const branchName = document.getElementById('branchName').value;
+            const prTitle = document.getElementById('prTitle').value;
+            const prDescription = document.getElementById('prDescription').value;
+            const reviewers = document.getElementById('reviewers').value.split(',').map(r => r.trim()).filter(r => r);
+            
+            if (!branchName || !prTitle) {
+                showOutput('Please enter branch name and PR title', 'error');
+                return;
+            }
+            
+            try {
+                showOutput(`Creating pull request for '${branchName}'...`, 'info');
+                const response = await fetch('/api/create-pr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ branchName, title: prTitle, description: prDescription, reviewers, cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showOutput(result.message, 'success');
+                } else {
+                    showOutput('Error creating PR: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('Error creating PR: ' + error.message, 'error');
+            }
+        }
+
+        async function executeFullFlow() {
+            const branchName = document.getElementById('branchName').value;
+            const baseBranch = document.getElementById('baseBranch').value;
+            const commitTitle = document.getElementById('commitTitle').value;
+            const commitDescription = document.getElementById('commitDescription').value;
+            const prTitle = document.getElementById('prTitle').value;
+            const prDescription = document.getElementById('prDescription').value;
+            const reviewers = document.getElementById('reviewers').value.split(',').map(r => r.trim()).filter(r => r);
+            
+            if (!branchName || !commitTitle || !prTitle) {
+                showOutput('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            try {
+                showOutput('Executing full workflow...', 'info');
+                const response = await fetch('/api/execute-flow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        branchName,
+                        baseBranch,
+                        commitTitle,
+                        commitDescription,
+                        prTitle,
+                        prDescription,
+                        reviewers,
+                        autoPR: true,
+                        cwd: process.cwd()
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showOutput('Full workflow completed successfully!', 'success');
+                    showFlowResults(result.results);
+                } else {
+                    showOutput('Full workflow failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showOutput('Error executing full workflow: ' + error.message, 'error');
+            }
+        }
+
+        function showOutput(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+            
+            output.innerHTML += `<div class="output ${className}">[${timestamp}] ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Mock process.cwd() for browser environment
+        if (typeof process === 'undefined') {
+            window.process = { cwd: () => '/Volumes/SeverD-1/Shared/AppsHub/Briefcase-GitHub-Automation' };
+        }
+    </script>
+</body>
+</html>

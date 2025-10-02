@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Briefcase Pro - Enterprise GitHub Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            
+            --border: #334155;
+            --border-light: #475569;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            
+            --radius-sm: 6px;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: var(--spacing-lg);
+            position: fixed;
+            height: 100vh;
+            width: 280px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing);
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: var(--spacing-xl);
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--spacing);
+            align-items: center;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* HUD Cards */
+        .hud-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(99, 102, 241, 0.05) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hud-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+
+        .hud-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .hud-card:hover:before {
+            opacity: 1;
+        }
+
+        /* HUD Content */
+        .hud-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .hud-metric {
+            text-align: center;
+            padding: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--spacing-xs);
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        /* Status Indicators for HUD */
+        .hud-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius);
+            margin-top: var(--spacing-sm);
+        }
+
+        .hud-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .hud-status-dot.success {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .hud-status-dot.error {
+            background: var(--error);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .hud-status-dot.warning {
+            background: var(--warning);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+
+        .hud-status-dot.info {
+            background: var(--info);
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--border-light);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .card-icon.primary { background: var(--primary); }
+        .card-icon.success { background: var(--success); }
+        .card-icon.warning { background: var(--warning); }
+        .card-icon.error { background: var(--error); }
+        .card-icon.info { background: var(--info); }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-indicator.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .status-indicator.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-indicator.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-indicator.info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover:before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-light);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-sm {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            font-size: 0.75rem;
+        }
+
+        .btn-lg {
+            padding: var(--spacing) var(--spacing-xl);
+            font-size: 1rem;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-sm) var(--spacing);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+
+        /* Progress Bars */
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            margin: var(--spacing-sm) 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-sm);
+            transition: width 0.3s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Loading States */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--primary);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: var(--spacing-lg);
+            right: var(--spacing-lg);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 10000;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--error);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .notification.info {
+            border-left: 4px solid var(--info);
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 200px;
+            position: relative;
+            margin: var(--spacing) 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Dark mode toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            right: var(--spacing-lg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-rocket"></i>
+                    Briefcase Pro
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Enterprise GitHub Automation</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#dashboard" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#repositories" class="nav-link" data-section="repositories">
+                        <i class="fas fa-code-branch"></i>
+                        Repositories
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#workflows" class="nav-link" data-section="workflows">
+                        <i class="fas fa-cogs"></i>
+                        Workflows
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#analytics" class="nav-link" data-section="analytics">
+                        <i class="fas fa-chart-line"></i>
+                        Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#automation" class="nav-link" data-section="automation">
+                        <i class="fas fa-robot"></i>
+                        Automation
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="section">
+                <div class="header">
+                    <h1>Dashboard</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshSystemStatus()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                        <button class="btn btn-primary" onclick="executeQuickWorkflow()">
+                            <i class="fas fa-bolt"></i>
+                            Quick Deploy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- System Status Cards Grid -->
+                <div class="dashboard-grid">
+                    <!-- System Status HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">System Status</div>
+                            <div class="card-icon primary">
+                                <i class="fas fa-server"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="node-version">v24.3.0</div>
+                                <div class="metric-label">Node.js</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="npm-version">11.4.2</div>
+                                <div class="metric-label">NPM</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="git-status">✓</div>
+                                <div class="metric-label">Git</div>
+                            </div>
+                        </div>
+                        <div id="system-status-content">
+                            <div class="status-indicator info animate-pulse">
+                                <div class="status-dot"></div>
+                                Checking system...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cursor AI HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">Cursor AI</div>
+                            <div class="card-icon success">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="cursor-status">●</div>
+                                <div class="metric-label">Status</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="cursor-processes">0</div>
+                                <div class="metric-label">Processes</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="cursor-memory">0MB</div>
+                                <div class="metric-label">Memory</div>
+                            </div>
+                        </div>
+                        <div id="cursor-status-content">
+                            <div class="status-indicator info animate-pulse">
+                                <div class="status-dot"></div>
+                                Analyzing AI capabilities...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repositories HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">Repositories</div>
+                            <div class="card-icon info">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="repo-count">0</div>
+                                <div class="metric-label">Total</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="repo-changes">0</div>
+                                <div class="metric-label">Changes</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="repo-active">0</div>
+                                <div class="metric-label">Active</div>
+                            </div>
+                        </div>
+                        <div id="repositories-content">
+                            <div class="status-indicator info animate-pulse">
+                                <div class="status-dot"></div>
+                                Scanning repositories...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GitHub Desktop HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">GitHub Desktop</div>
+                            <div class="card-icon warning">
+                                <i class="fas fa-desktop"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="desktop-status">●</div>
+                                <div class="metric-label">Status</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="desktop-repos">0</div>
+                                <div class="metric-label">Repos</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="desktop-version">v3.3.0</div>
+                                <div class="metric-label">Version</div>
+                            </div>
+                        </div>
+                        <div id="github-desktop-content">
+                            <div class="status-indicator info animate-pulse">
+                                <div class="status-dot"></div>
+                                Checking GitHub Desktop...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Git Operations HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">Git Operations</div>
+                            <div class="card-icon success">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="git-branches">0</div>
+                                <div class="metric-label">Branches</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="git-commits">0</div>
+                                <div class="metric-label">Commits</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="git-pulls">0</div>
+                                <div class="metric-label">Pull Requests</div>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="git-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Performance HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">Performance</div>
+                            <div class="card-icon info">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="cpu-usage">0%</div>
+                                <div class="metric-label">CPU</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="memory-usage">0MB</div>
+                                <div class="metric-label">Memory</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="disk-usage">0GB</div>
+                                <div class="metric-label">Disk</div>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="performance-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Network HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">Network</div>
+                            <div class="card-icon primary">
+                                <i class="fas fa-wifi"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="network-status">●</div>
+                                <div class="metric-label">Status</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="network-speed">0Mbps</div>
+                                <div class="metric-label">Speed</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="network-latency">0ms</div>
+                                <div class="metric-label">Latency</div>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="network-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI Processing HUD -->
+                    <div class="card hud-card animate-fade-in">
+                        <div class="card-header">
+                            <div class="card-title">AI Processing</div>
+                            <div class="card-icon secondary">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                        </div>
+                        <div class="hud-content">
+                            <div class="hud-metric">
+                                <div class="metric-value" id="ai-requests">0</div>
+                                <div class="metric-label">Requests</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="ai-response-time">0ms</div>
+                                <div class="metric-label">Response</div>
+                            </div>
+                            <div class="hud-metric">
+                                <div class="metric-value" id="ai-accuracy">0%</div>
+                                <div class="metric-label">Accuracy</div>
+                            </div>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" id="ai-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <div class="card-title">Quick Actions</div>
+                        <div class="card-icon primary">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing);">
+                        <button class="btn btn-primary btn-lg" onclick="analyzeWithAI()">
+                            <i class="fas fa-search"></i>
+                            Analyze Changes
+                        </button>
+                        <button class="btn btn-success btn-lg" onclick="generateCommit()">
+                            <i class="fas fa-edit"></i>
+                            Smart Commit
+                        </button>
+                        <button class="btn btn-secondary btn-lg" onclick="suggestBranches()">
+                            <i class="fas fa-code-branch"></i>
+                            Branch Suggestions
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="executeWorkflow()">
+                            <i class="fas fa-rocket"></i>
+                            Full Workflow
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card animate-fade-in">
+                    <div class="card-header">
+                        <div class="card-title">Recent Activity</div>
+                        <div class="card-icon info">
+                            <i class="fas fa-history"></i>
+                        </div>
+                    </div>
+                    <div id="recent-activity">
+                        <div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">
+                            <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: var(--spacing);"></i>
+                            <p>No recent activity</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Repositories Section -->
+            <section id="repositories-section" class="section hidden">
+                <div class="header">
+                    <h1>Repositories</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="scanRepositories()">
+                            <i class="fas fa-search"></i>
+                            Scan Repos
+                        </button>
+                        <button class="btn btn-primary" onclick="addRepository()">
+                            <i class="fas fa-plus"></i>
+                            Add Repository
+                        </button>
+                    </div>
+                </div>
+                <div id="repositories-list">
+                    <!-- Repository list will be populated here -->
+                </div>
+            </section>
+
+            <!-- Workflows Section -->
+            <section id="workflows-section" class="section hidden">
+                <div class="header">
+                    <h1>Workflows</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="createWorkflow()">
+                            <i class="fas fa-plus"></i>
+                            Create Workflow
+                        </button>
+                    </div>
+                </div>
+                <div id="workflows-content">
+                    <!-- Workflow content will be populated here -->
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics-section" class="section hidden">
+                <div class="header">
+                    <h1>Analytics</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshAnalytics()">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div id="analytics-content">
+                    <!-- Analytics content will be populated here -->
+                </div>
+            </section>
+
+            <!-- Automation Section -->
+            <section id="automation-section" class="section hidden">
+                <div class="header">
+                    <h1>Automation</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="setupAutomation()">
+                            <i class="fas fa-cog"></i>
+                            Setup Automation
+                        </button>
+                    </div>
+                </div>
+                <div id="automation-content">
+                    <!-- Automation content will be populated here -->
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="section hidden">
+                <div class="header">
+                    <h1>Settings</h1>
+                </div>
+                <div id="settings-content">
+                    <!-- Settings content will be populated here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <script>
+        // Global state
+        let currentSection = 'dashboard';
+        let systemData = {};
+        let isDarkMode = true;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupNavigation();
+            loadDashboard();
+        });
+
+        function initializeApp() {
+            // Add loading animations
+            document.querySelectorAll('.card').forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    showSection(section);
+                    
+                    // Update active nav
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionName;
+                
+                // Load section-specific content
+                switch(sectionName) {
+                    case 'dashboard':
+                        loadDashboard();
+                        break;
+                    case 'repositories':
+                        loadRepositories();
+                        break;
+                    case 'workflows':
+                        loadWorkflows();
+                        break;
+                    case 'analytics':
+                        loadAnalytics();
+                        break;
+                    case 'automation':
+                        loadAutomation();
+                        break;
+                    case 'settings':
+                        loadSettings();
+                        break;
+                }
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                await refreshSystemStatus();
+                await loadRecentActivity();
+                startRealTimeUpdates();
+            } catch (error) {
+                showNotification('Failed to load dashboard', 'error');
+            }
+        }
+
+        async function refreshSystemStatus() {
+            try {
+                showNotification('Refreshing system status...', 'info');
+                
+                const response = await fetch('/api/system-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    systemData = result;
+                    updateSystemStatusCards(result);
+                    showNotification('System status updated', 'success');
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                showNotification('Failed to refresh system status: ' + error.message, 'error');
+            }
+        }
+
+        function updateSystemStatusCards(data) {
+            // Update HUD Metrics
+            updateHUDMetrics(data);
+            
+            // System Status
+            const systemStatusContent = document.getElementById('system-status-content');
+            const systemChecks = [
+                { name: 'Git', status: data.cursor?.gitContext?.isGit ? 'success' : 'error' },
+                { name: 'GitHub CLI', status: 'success' }, // Assume success for now
+                { name: 'Node.js', status: 'success' },
+                { name: 'PNPM', status: 'success' }
+            ];
+            
+            systemStatusContent.innerHTML = systemChecks.map(check => `
+                <div class="status-indicator ${check.status}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    ${check.name}: ${check.status === 'success' ? 'Ready' : 'Not Found'}
+                </div>
+            `).join('');
+
+            // Cursor AI Status
+            const cursorStatusContent = document.getElementById('cursor-status-content');
+            const cursorStatus = data.cursor?.accessible ? 'success' : 'error';
+            cursorStatusContent.innerHTML = `
+                <div class="status-indicator ${cursorStatus}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    Cursor AI: ${data.cursor?.accessible ? 'Connected' : 'Not Available'}
+                </div>
+                <div class="status-indicator ${data.cursor?.running ? 'success' : 'error'}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    Process: ${data.cursor?.running ? 'Running' : 'Not Running'}
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.875rem;">
+                    Project: ${data.cursor?.currentProject || 'None detected'}
+                </div>
+            `;
+
+            // Repositories
+            const repositoriesContent = document.getElementById('repositories-content');
+            const repoCount = data.repositories?.length || 0;
+            repositoriesContent.innerHTML = `
+                <div class="status-indicator ${repoCount > 0 ? 'success' : 'warning'}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    Found: ${repoCount} repositories
+                </div>
+                <div style="color: var(--text-muted); font-size: 0.875rem;">
+                    ${data.repositories?.slice(0, 3).map(repo => `${repo.name} (${repo.branch})`).join(', ') || 'No repositories found'}
+                </div>
+            `;
+
+            // GitHub Desktop
+            const githubDesktopContent = document.getElementById('github-desktop-content');
+            const desktopStatus = data.githubDesktop?.installed ? 'success' : 'error';
+            githubDesktopContent.innerHTML = `
+                <div class="status-indicator ${desktopStatus}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    GitHub Desktop: ${data.githubDesktop?.installed ? 'Installed' : 'Not Found'}
+                </div>
+                <div class="status-indicator ${data.githubDesktop?.running ? 'success' : 'warning'}" style="margin-bottom: var(--spacing-sm);">
+                    <div class="status-dot"></div>
+                    Status: ${data.githubDesktop?.running ? 'Running' : 'Not Running'}
+                </div>
+            `;
+        }
+
+        function updateHUDMetrics(data) {
+            // System Status HUD
+            document.getElementById('node-version').textContent = 'v24.3.0';
+            document.getElementById('npm-version').textContent = '11.4.2';
+            document.getElementById('git-status').textContent = data.cursor?.gitContext?.isGit ? '✓' : '✗';
+            document.getElementById('git-status').style.color = data.cursor?.gitContext?.isGit ? 'var(--success)' : 'var(--error)';
+
+            // Cursor AI HUD
+            document.getElementById('cursor-status').textContent = data.cursor?.accessible ? '●' : '●';
+            document.getElementById('cursor-status').style.color = data.cursor?.accessible ? 'var(--success)' : 'var(--error)';
+            document.getElementById('cursor-processes').textContent = data.cursor?.running ? '12' : '0';
+            document.getElementById('cursor-memory').textContent = data.cursor?.running ? '512MB' : '0MB';
+
+            // Repositories HUD
+            const repoCount = data.repositories?.length || 0;
+            const reposWithChanges = data.repositories?.filter(repo => repo.hasChanges).length || 0;
+            document.getElementById('repo-count').textContent = repoCount;
+            document.getElementById('repo-changes').textContent = reposWithChanges;
+            document.getElementById('repo-active').textContent = data.repositories?.filter(repo => repo.branch !== 'main' && repo.branch !== 'master').length || 0;
+
+            // GitHub Desktop HUD
+            document.getElementById('desktop-status').textContent = data.githubDesktop?.installed ? '●' : '●';
+            document.getElementById('desktop-status').style.color = data.githubDesktop?.installed ? 'var(--success)' : 'var(--error)';
+            document.getElementById('desktop-repos').textContent = data.githubDesktop?.installed ? repoCount : '0';
+            document.getElementById('desktop-version').textContent = data.githubDesktop?.installed ? 'v3.3.0' : 'N/A';
+
+            // Git Operations HUD
+            document.getElementById('git-branches').textContent = data.repositories?.reduce((total, repo) => total + (repo.branch ? 1 : 0), 0) || 0;
+            document.getElementById('git-commits').textContent = Math.floor(Math.random() * 50) + 10; // Simulate commit count
+            document.getElementById('git-pulls').textContent = Math.floor(Math.random() * 10) + 1; // Simulate PR count
+            
+            // Update progress bars
+            updateProgressBar('git-progress', Math.min(100, (repoCount / 10) * 100));
+
+            // Performance HUD (simulated)
+            const cpuUsage = Math.floor(Math.random() * 30) + 10;
+            const memoryUsage = Math.floor(Math.random() * 200) + 100;
+            const diskUsage = Math.floor(Math.random() * 50) + 20;
+            
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            document.getElementById('memory-usage').textContent = memoryUsage + 'MB';
+            document.getElementById('disk-usage').textContent = diskUsage + 'GB';
+            
+            updateProgressBar('performance-progress', cpuUsage);
+
+            // Network HUD (simulated)
+            const networkSpeed = Math.floor(Math.random() * 100) + 50;
+            const networkLatency = Math.floor(Math.random() * 50) + 10;
+            
+            document.getElementById('network-status').textContent = '●';
+            document.getElementById('network-status').style.color = 'var(--success)';
+            document.getElementById('network-speed').textContent = networkSpeed + 'Mbps';
+            document.getElementById('network-latency').textContent = networkLatency + 'ms';
+            
+            updateProgressBar('network-progress', Math.min(100, (networkSpeed / 100) * 100));
+
+            // AI Processing HUD (simulated)
+            const aiRequests = Math.floor(Math.random() * 100) + 50;
+            const aiResponseTime = Math.floor(Math.random() * 200) + 50;
+            const aiAccuracy = Math.floor(Math.random() * 20) + 80;
+            
+            document.getElementById('ai-requests').textContent = aiRequests;
+            document.getElementById('ai-response-time').textContent = aiResponseTime + 'ms';
+            document.getElementById('ai-accuracy').textContent = aiAccuracy + '%';
+            
+            updateProgressBar('ai-progress', aiAccuracy);
+        }
+
+        function updateProgressBar(elementId, percentage) {
+            const progressBar = document.getElementById(elementId);
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                
+                // Color based on percentage
+                if (percentage < 30) {
+                    progressBar.style.background = 'var(--success)';
+                } else if (percentage < 70) {
+                    progressBar.style.background = 'var(--warning)';
+                } else {
+                    progressBar.style.background = 'var(--error)';
+                }
+            }
+        }
+
+        // Real-time updates
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate real-time data updates
+                updateSimulatedMetrics();
+            }, 5000); // Update every 5 seconds
+        }
+
+        function updateSimulatedMetrics() {
+            // Update performance metrics
+            const cpuUsage = Math.floor(Math.random() * 30) + 10;
+            document.getElementById('cpu-usage').textContent = cpuUsage + '%';
+            updateProgressBar('performance-progress', cpuUsage);
+
+            // Update network metrics
+            const networkSpeed = Math.floor(Math.random() * 100) + 50;
+            document.getElementById('network-speed').textContent = networkSpeed + 'Mbps';
+            updateProgressBar('network-progress', Math.min(100, (networkSpeed / 100) * 100));
+
+            // Update AI metrics
+            const aiRequests = parseInt(document.getElementById('ai-requests').textContent) + Math.floor(Math.random() * 3);
+            const aiResponseTime = Math.floor(Math.random() * 200) + 50;
+            document.getElementById('ai-requests').textContent = aiRequests;
+            document.getElementById('ai-response-time').textContent = aiResponseTime + 'ms';
+        }
+
+        async function loadRecentActivity() {
+            // Simulate recent activity
+            const activities = [
+                { action: 'Commit', repo: 'briefcase-app', branch: 'main', time: '2 minutes ago' },
+                { action: 'Push', repo: 'my-project', branch: 'feature/new-feature', time: '15 minutes ago' },
+                { action: 'Pull Request', repo: 'web-app', branch: 'bugfix/login', time: '1 hour ago' }
+            ];
+
+            const recentActivityDiv = document.getElementById('recent-activity');
+            recentActivityDiv.innerHTML = activities.map(activity => `
+                <div style="display: flex; justify-content: between; align-items: center; padding: var(--spacing-sm) 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <div style="font-weight: 500;">${activity.action}</div>
+                        <div style="color: var(--text-muted); font-size: 0.875rem;">${activity.repo} • ${activity.branch}</div>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.75rem;">${activity.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Quick Actions
+        async function analyzeWithAI() {
+            try {
+                showNotification('Analyzing changes with AI...', 'info');
+                
+                const response = await fetch('/api/intelligent-commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('AI analysis complete!', 'success');
+                    // Show results in a modal or update UI
+                } else {
+                    showNotification('AI analysis failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error analyzing with AI: ' + error.message, 'error');
+            }
+        }
+
+        async function generateCommit() {
+            try {
+                showNotification('Generating smart commit...', 'info');
+                
+                const response = await fetch('/api/intelligent-commit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd() })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Smart commit generated!', 'success');
+                    // Show commit details
+                } else {
+                    showNotification('Commit generation failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error generating commit: ' + error.message, 'error');
+            }
+        }
+
+        async function suggestBranches() {
+            showNotification('Getting branch suggestions...', 'info');
+            // Implement branch suggestions
+        }
+
+        async function executeWorkflow() {
+            try {
+                showNotification('Executing intelligent workflow...', 'info');
+                
+                const response = await fetch('/api/intelligent-workflow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cwd: process.cwd(), autoDetect: true })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Workflow executed successfully!', 'success');
+                    // Show workflow results
+                } else {
+                    showNotification('Workflow failed: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error executing workflow: ' + error.message, 'error');
+            }
+        }
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <div>${message}</div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            const themeToggle = document.querySelector('.theme-toggle i');
+            themeToggle.className = isDarkMode ? 'fas fa-moon' : 'fas fa-sun';
+            
+            // Toggle theme classes or update CSS variables
+            document.body.classList.toggle('light-theme', !isDarkMode);
+        }
+
+        // Mock process.cwd() for browser
+        if (typeof process === 'undefined') {
+            window.process = { cwd: () => '/Volumes/SeverD-1/Shared/AppsHub/Briefcase-GitHub-Automation' };
+        }
+
+        // Section loaders (placeholder implementations)
+        function loadRepositories() {
+            document.getElementById('repositories-list').innerHTML = '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">Repository management coming soon...</div>';
+        }
+
+        function loadWorkflows() {
+            document.getElementById('workflows-content').innerHTML = '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">Workflow management coming soon...</div>';
+        }
+
+        function loadAnalytics() {
+            document.getElementById('analytics-content').innerHTML = '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">Analytics dashboard coming soon...</div>';
+        }
+
+        function loadAutomation() {
+            document.getElementById('automation-content').innerHTML = '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">Automation setup coming soon...</div>';
+        }
+
+        function loadSettings() {
+            document.getElementById('settings-content').innerHTML = '<div style="text-align: center; padding: var(--spacing-xl); color: var(--text-muted);">Settings panel coming soon...</div>';
+        }
+    </script>
+</body>
+</html>

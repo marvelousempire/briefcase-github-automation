@@ -266,7 +266,7 @@ app.post('/api/generate-schema', (req, res) => {
 
 // Serve the HTML file
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'github-automation.html'));
+    res.sendFile(path.join(__dirname, 'github-automation-cursor.html'));
 });
 
 // Start server

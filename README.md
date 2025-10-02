@@ -12,6 +12,8 @@ A single-file Vue.js application with Node.js backend that automates GitHub oper
 - **🔧 System Check**: Verify UV, PNPM, GitHub CLI, and Git installation
 - **📋 Schema Generation**: Export/import configuration schemas
 - **⚡ Full Automation**: Execute complete GitHub workflow with one click
+- **🎨 Avatar System**: Comprehensive multi-source avatar management (Memoji, Stickers, Emoji)
+- **📱 Interface Documentation**: Complete UI/UX documentation for all features
 
 ## 🛠️ Prerequisites
 
